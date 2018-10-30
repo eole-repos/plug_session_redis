@@ -39,12 +39,19 @@ defmodule PlugSessionRedisTest do
 
   test "extract user id with new line character" do
     [
+      # 通常の場合
+      %{char: "\x03\xfbnk", user_id: 7040763},
+
+      # 改行が含む場合
       %{char: "\x03\xfb\x0Ak", user_id: 7_015_163},
       %{char: "\x03\xfb\nk", user_id: 7_015_163},
       %{char: "\x03\xfb\rk", user_id: 7_015_931},
       %{char: "\x03\xfb\x0a\x6b", user_id: 7_015_163},
       %{char: "\x03\xfb\x00\x6b", user_id: 7_012_603},
-      %{char: "\x03\xfb\x0d\x6b", user_id: 7_015_931}
+      %{char: "\x03\xfb\x0d\x6b", user_id: 7_015_931},
+
+      # 空白が含む場合
+      %{char: "\x03\xfb \x6b", user_id: 7020795}
     ]
     |> Enum.each(fn %{char: char, user_id: user_id} ->
       assert %{"ra9api" => %{user_id: user_id}} ==
